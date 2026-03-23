@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.layout {
+  min-height: 100dvh;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 102, 0.35), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(23, 121, 181, 0.18), transparent 30%),
+    linear-gradient(180deg, #fffaf0 0%, #f5f8fa 55%, #edf4f7 100%);
+}
+
+.hero {
+  max-width: 54rem;
+  margin: 0 auto 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #9b5e00;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font: 700 0.78rem/1 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+h1,
+h2 {
+  margin: 0;
+  color: #102331;
+  font-family: "Fraunces", "Iowan Old Style", Georgia, serif;
+}
+
+h1 {
+  max-width: 16ch;
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  line-height: 0.95;
+}
+
+.lede,
+.panel-header p {
+  margin: 0;
+  color: #395161;
+  font: 400 1rem/1.6 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.lede {
+  max-width: 42rem;
+  margin-top: 1rem;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  max-width: 86rem;
+  margin: 0 auto;
+}
+
+.editor-panel {
+  grid-column: 1 / -1;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(16, 35, 49, 0.08);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 36px rgba(16, 35, 49, 0.08);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+}
+
+.ghost-action {
+  border: 1px solid #c2d4db;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #17394b;
+  padding: 0.45rem 0.8rem;
+  font: 600 0.88rem/1 "IBM Plex Sans", "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+pre {
+  margin: 0;
+  overflow: auto;
+  border-radius: 1rem;
+  background: #102331;
+  color: #eef7fb;
+  padding: 1rem;
+  font: 400 0.92rem/1.5 "IBM Plex Mono", "SFMono-Regular", monospace;
+}
+
+kbd {
+  border-radius: 0.4rem;
+  background: #17394b;
+  color: #ffffff;
+  padding: 0.15rem 0.45rem;
+  font: 600 0.85rem/1 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    padding: 1rem;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header {
+    align-items: start;
+    flex-direction: column;
+  }
+}
