@@ -3,12 +3,30 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { startWith } from 'rxjs';
-import { SmartEditorComponent, defaultEditorPlugins, parseMarkdown, serializeMarkdown, validateDocument } from 'ngx-smart-editor';
+import {
+  SmartEditorComponent,
+  SmartEditorPickerEmptyDirective,
+  SmartEditorPickerFooterDirective,
+  SmartEditorPickerHeaderDirective,
+  SmartEditorPickerOptionDirective,
+  defaultEditorPlugins,
+  parseMarkdown,
+  serializeMarkdown,
+  validateDocument,
+} from 'ngx-smart-editor';
 import type { EditorDocument, VariableOption } from 'ngx-smart-editor';
 
 @Component({
   selector: 'app-root',
-  imports: [ReactiveFormsModule, SmartEditorComponent, JsonPipe],
+  imports: [
+    ReactiveFormsModule,
+    SmartEditorComponent,
+    SmartEditorPickerHeaderDirective,
+    SmartEditorPickerOptionDirective,
+    SmartEditorPickerEmptyDirective,
+    SmartEditorPickerFooterDirective,
+    JsonPipe,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +41,11 @@ export class App {
     { key: 'agent.name', label: 'Agent name' },
   ];
   protected readonly sampleImportMarkdown = '{{ variable:customer.lastName | label:Customer last name }}';
+  protected readonly pickerTemplateExample =
+    '<ng-template smartEditorPickerHeader let-query="query"> ... </ng-template>\n' +
+    '<ng-template smartEditorPickerOption let-option let-active="active"> ... </ng-template>\n' +
+    '<ng-template smartEditorPickerEmpty let-query="query"> ... </ng-template>\n' +
+    '<ng-template smartEditorPickerFooter> ... </ng-template>';
   protected readonly editorControl = new FormControl<EditorDocument>(
     [
       { type: 'text', content: 'Hello ' },

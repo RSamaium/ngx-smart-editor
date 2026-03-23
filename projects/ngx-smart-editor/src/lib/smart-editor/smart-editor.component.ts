@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   computed,
+  contentChild,
   effect,
   forwardRef,
   inject,
@@ -16,13 +17,17 @@ import { EditorCursorPosition, EditorDocument, EditorNode, TextNode, VariableNod
 import { createEditorRegistry } from './core/editor-registry';
 import { EDITOR_PLUGINS, EditorPlugin } from './core/editor-plugin';
 import { createTextNode, ensureEditableDocument, isTextNode, normalizeDocument } from './core/editor.utils';
+import { SmartEditorPickerComponent, SmartEditorPickerPosition } from './picker.component';
+import {
+  SmartEditorPickerEmptyDirective,
+  SmartEditorPickerErrorDirective,
+  SmartEditorPickerFooterDirective,
+  SmartEditorPickerHeaderDirective,
+  SmartEditorPickerLoadingDirective,
+  SmartEditorPickerOptionDirective,
+} from './picker-customization';
 import { SmartEditorPluginHostComponent } from './plugin-host.component';
 import { defaultEditorPlugins } from './plugins/default-plugins';
-
-interface PickerPosition {
-  left: number;
-  top: number;
-}
 
 interface VariablePickerRequest {
   anchorElement?: HTMLElement | null;
@@ -32,7 +37,7 @@ interface VariablePickerRequest {
 
 @Component({
   selector: 'ngx-smart-editor',
-  imports: [SmartEditorPluginHostComponent],
+  imports: [SmartEditorPluginHostComponent, SmartEditorPickerComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -91,47 +96,23 @@ interface VariablePickerRequest {
       </div>
 
       @if (variablePickerOpen()) {
-        <div class="picker-backdrop" (click)="closeVariablePicker()"></div>
-        <section
-          class="variable-picker"
-          [class.is-mobile]="pickerMobile()"
-          [style.left.px]="pickerMobile() ? null : pickerPosition()?.left ?? null"
-          [style.top.px]="pickerMobile() ? null : pickerPosition()?.top ?? null"
-          aria-label="Variable picker"
-        >
-          <header class="picker-header">
-            <div>
-              <strong>Variables</strong>
-              <p>
-                @if (variableQuery()) {
-                  Search: <span class="picker-query">{{ variableQuery() }}</span>
-                } @else {
-                  Choose a variable to insert in the text.
-                }
-              </p>
-            </div>
-            <button type="button" class="picker-close" (click)="closeVariablePicker()">Close</button>
-          </header>
-
-          <div class="picker-list" role="listbox">
-            @for (option of filteredVariableOptions(); track option.key; let optionIndex = $index) {
-              <button
-                type="button"
-                class="picker-option"
-                [class.is-active]="optionIndex === activeVariableOptionIndex()"
-                [attr.aria-selected]="optionIndex === activeVariableOptionIndex()"
-                (click)="selectVariable(option)"
-              >
-                <span class="picker-option-label">{{ option.label }}</span>
-                <span class="picker-option-key">{{ option.key }}</span>
-              </button>
-            }
-
-            @if (filteredVariableOptions().length === 0) {
-              <p class="picker-empty">No variable matches "{{ variableQuery() }}".</p>
-            }
-          </div>
-        </section>
+        <smart-editor-picker
+          [query]="variableQuery()"
+          [options]="filteredVariableOptions()"
+          [activeIndex]="activeVariableOptionIndex()"
+          [loading]="pickerLoading()"
+          [error]="pickerError()"
+          [mobile]="pickerMobile()"
+          [position]="pickerPosition()"
+          [optionTemplate]="pickerOptionTemplateRef()"
+          [loadingTemplate]="pickerLoadingTemplateRef()"
+          [emptyTemplate]="pickerEmptyTemplateRef()"
+          [errorTemplate]="pickerErrorTemplateRef()"
+          [headerTemplate]="pickerHeaderTemplateRef()"
+          [footerTemplate]="pickerFooterTemplateRef()"
+          (optionSelected)="selectVariable($event)"
+          (closeRequested)="closeVariablePicker()"
+        />
       }
     </section>
   `,
@@ -235,102 +216,6 @@ interface VariablePickerRequest {
       font-style: italic;
     }
 
-    .picker-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 1600;
-      background: rgba(16, 35, 49, 0.12);
-    }
-
-    .variable-picker {
-      position: fixed;
-      z-index: 1601;
-      width: min(24rem, calc(100vw - 2rem));
-      border: 1px solid #dbe3e8;
-      border-radius: 1rem;
-      background: #ffffff;
-      box-shadow: 0 24px 50px rgba(16, 35, 49, 0.18);
-      overflow: hidden;
-    }
-
-    .variable-picker.is-mobile {
-      inset: auto 0 0 0;
-      width: auto;
-      border-radius: 1.1rem 1.1rem 0 0;
-    }
-
-    .picker-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem;
-      border-bottom: 1px solid #e5edf1;
-      background: #f8fbfc;
-    }
-
-    .picker-header p {
-      margin: 0.2rem 0 0;
-      color: #59717f;
-      font: 400 0.9rem/1.4 "IBM Plex Sans", "Segoe UI", sans-serif;
-    }
-
-    .picker-close {
-      border: 0;
-      background: transparent;
-      color: #17394b;
-      font: 600 0.9rem/1 "IBM Plex Sans", "Segoe UI", sans-serif;
-      cursor: pointer;
-    }
-
-    .picker-list {
-      display: grid;
-      max-height: min(18rem, 55vh);
-      overflow: auto;
-      padding: 0.5rem;
-      gap: 0.35rem;
-    }
-
-    .picker-option {
-      display: grid;
-      gap: 0.2rem;
-      border: 1px solid #e1e8ec;
-      border-radius: 0.8rem;
-      background: #ffffff;
-      color: #102331;
-      padding: 0.8rem 0.9rem;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .picker-option.is-active {
-      border-color: #0e7490;
-      background: #ecfeff;
-      box-shadow: inset 0 0 0 1px rgba(14, 116, 144, 0.12);
-    }
-
-    .picker-option-label {
-      font: 600 0.95rem/1.2 "IBM Plex Sans", "Segoe UI", sans-serif;
-    }
-
-    .picker-option-key {
-      color: #6c7e88;
-      font: 400 0.85rem/1.2 "IBM Plex Mono", monospace;
-    }
-
-    .picker-query {
-      color: #17394b;
-      font-weight: 600;
-    }
-
-    .picker-empty {
-      margin: 0;
-      border: 1px dashed #c8d5dc;
-      border-radius: 0.8rem;
-      padding: 0.9rem;
-      color: #59717f;
-      font: 400 0.92rem/1.4 "IBM Plex Sans", "Segoe UI", sans-serif;
-    }
-
     .is-disabled {
       opacity: 0.72;
     }
@@ -339,10 +224,6 @@ interface VariablePickerRequest {
       .editor-surface {
         min-height: 10rem;
         padding: 0.9rem;
-      }
-
-      .picker-list {
-        max-height: 50vh;
       }
     }
   `,
@@ -360,8 +241,10 @@ export class SmartEditorComponent implements ControlValueAccessor {
   protected readonly editingIndex = signal<number | null>(null);
   protected readonly variablePickerOpen = signal(false);
   protected readonly variableQuery = signal('');
+  protected readonly pickerLoading = signal(false);
+  protected readonly pickerError = signal<string | null>(null);
   protected readonly pickerMobile = signal(false);
-  protected readonly pickerPosition = signal<PickerPosition | null>(null);
+  protected readonly pickerPosition = signal<SmartEditorPickerPosition | null>(null);
   protected readonly registry = computed(() => createEditorRegistry(this.resolvedPlugins()));
   protected readonly resolvedVariableOptions = computed(() => {
     return this.variableOptions().length > 0
@@ -398,6 +281,12 @@ export class SmartEditorComponent implements ControlValueAccessor {
 
   private readonly externalPlugins = inject(EDITOR_PLUGINS);
   private readonly surface = viewChild.required<ElementRef<HTMLElement>>('surface');
+  private readonly pickerOptionTemplate = contentChild(SmartEditorPickerOptionDirective);
+  private readonly pickerLoadingTemplate = contentChild(SmartEditorPickerLoadingDirective);
+  private readonly pickerEmptyTemplate = contentChild(SmartEditorPickerEmptyDirective);
+  private readonly pickerErrorTemplate = contentChild(SmartEditorPickerErrorDirective);
+  private readonly pickerHeaderTemplate = contentChild(SmartEditorPickerHeaderDirective);
+  private readonly pickerFooterTemplate = contentChild(SmartEditorPickerFooterDirective);
   private readonly resolvedPlugins = computed<EditorPlugin[]>(() => {
     const merged = [...defaultEditorPlugins, ...this.externalPlugins, ...this.plugins()];
     const unique = new Map<string, EditorPlugin>();
@@ -416,6 +305,13 @@ export class SmartEditorComponent implements ControlValueAccessor {
   private pickerAnchorElement: HTMLElement | null = null;
   private onChange: (value: EditorDocument) => void = () => undefined;
   private onTouched: () => void = () => undefined;
+
+  protected readonly pickerOptionTemplateRef = computed(() => this.pickerOptionTemplate()?.template ?? null);
+  protected readonly pickerLoadingTemplateRef = computed(() => this.pickerLoadingTemplate()?.template ?? null);
+  protected readonly pickerEmptyTemplateRef = computed(() => this.pickerEmptyTemplate()?.template ?? null);
+  protected readonly pickerErrorTemplateRef = computed(() => this.pickerErrorTemplate()?.template ?? null);
+  protected readonly pickerHeaderTemplateRef = computed(() => this.pickerHeaderTemplate()?.template ?? null);
+  protected readonly pickerFooterTemplateRef = computed(() => this.pickerFooterTemplate()?.template ?? null);
 
   constructor() {
     effect(() => {
@@ -881,6 +777,8 @@ export class SmartEditorComponent implements ControlValueAccessor {
     this.variablePickerOpen.set(false);
     this.variableQuery.set('');
     this.variableSelectionIndex.set(0);
+    this.pickerLoading.set(false);
+    this.pickerError.set(null);
     this.pendingVariableCursor.set(null);
     this.pendingVariableReplaceIndex.set(null);
     this.pickerPosition.set(null);

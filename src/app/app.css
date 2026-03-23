@@ -109,6 +109,79 @@ kbd {
   font: 600 0.85rem/1 "IBM Plex Sans", "Segoe UI", sans-serif;
 }
 
+.picker-header-demo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.picker-header-demo strong,
+.picker-empty-demo strong {
+  color: #102331;
+  font: 700 0.98rem/1.2 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.picker-header-demo p,
+.picker-option-demo p,
+.picker-empty-demo p {
+  margin: 0;
+  color: #4c6472;
+  font: 400 0.88rem/1.45 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.picker-badge,
+.picker-option-kind {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.18rem 0.55rem;
+  background: #ecfeff;
+  color: #155e75;
+  font: 700 0.72rem/1 "IBM Plex Sans", "Segoe UI", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.picker-option-demo {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.picker-option-demo strong {
+  color: #102331;
+  font: 700 0.94rem/1.2 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.picker-option-demo.is-active .picker-option-kind {
+  background: #17394b;
+  color: #f8fafb;
+}
+
+.picker-empty-demo {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px dashed #c8d5dc;
+  border-radius: 0.9rem;
+  padding: 0.95rem;
+  background: #fbfdff;
+}
+
+.picker-footer-demo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #395161;
+  font: 500 0.88rem/1.4 "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+code {
+  border-radius: 0.35rem;
+  background: rgba(16, 35, 49, 0.08);
+  padding: 0.08rem 0.35rem;
+  font: 400 0.86rem/1.1 "IBM Plex Mono", "SFMono-Regular", monospace;
+}
+
 @media (max-width: 900px) {
   .layout {
     padding: 1rem;
@@ -119,6 +192,11 @@ kbd {
   }
 
   .panel-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .picker-footer-demo {
     align-items: start;
     flex-direction: column;
   }

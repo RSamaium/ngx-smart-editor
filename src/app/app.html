@@ -15,7 +15,47 @@
         <p>Tap in the text, type normally, then use <kbd>{{ '{' }}</kbd> to choose a variable.</p>
       </header>
 
-      <ngx-smart-editor [formControl]="editorControl" [plugins]="plugins" [variableOptions]="variableOptions" />
+      <ngx-smart-editor [formControl]="editorControl" [plugins]="plugins" [variableOptions]="variableOptions">
+        <ng-template smartEditorPickerHeader let-query="query">
+          <div class="picker-header-demo">
+            <span class="picker-badge">Custom picker</span>
+            <strong>Customer and ticket variables</strong>
+            <p>
+              @if (query) {
+                Searching for <code>{{ query }}</code>
+              } @else {
+                Start typing after <kbd>{{ '{' }}</kbd> to filter the list.
+              }
+            </p>
+          </div>
+        </ng-template>
+
+        <ng-template smartEditorPickerOption let-option let-active="active">
+          <div class="picker-option-demo" [class.is-active]="active">
+            <div>
+              <strong>{{ option.label }}</strong>
+              <p>{{ option.key }}</p>
+            </div>
+            <span class="picker-option-kind">Variable</span>
+          </div>
+        </ng-template>
+
+        <ng-template smartEditorPickerEmpty let-query="query">
+          <div class="picker-empty-demo">
+            <strong>No variable found</strong>
+            <p>Nothing matches <code>{{ query }}</code>.</p>
+          </div>
+        </ng-template>
+
+        <ng-template smartEditorPickerFooter>
+          <div class="picker-footer-demo">
+            <span>Templates are provided by the sample app.</span>
+            <button type="button" class="ghost-action" (click)="importMarkdown(sampleImportMarkdown)">
+              Insert sample token
+            </button>
+          </div>
+        </ng-template>
+      </ngx-smart-editor>
     </article>
 
     <article class="panel">
@@ -34,6 +74,13 @@
         <p>Status: {{ validation().isValid ? 'valid' : 'invalid' }}</p>
       </header>
       <pre>{{ documentValue() | json }}</pre>
+    </article>
+
+    <article class="panel">
+      <header class="panel-header">
+        <h2>Picker Templates</h2>
+      </header>
+      <pre>{{ pickerTemplateExample }}</pre>
     </article>
   </section>
 </main>

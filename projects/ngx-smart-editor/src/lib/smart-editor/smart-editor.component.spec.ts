@@ -1,6 +1,13 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SmartEditorComponent } from './smart-editor.component';
 import { EditorDocument, VariableOption } from './core/editor.models';
+import {
+  SmartEditorPickerEmptyDirective,
+  SmartEditorPickerFooterDirective,
+  SmartEditorPickerHeaderDirective,
+  SmartEditorPickerOptionDirective,
+} from './picker-customization';
 
 const variableOptions: VariableOption[] = [
   { key: 'customer.firstName', label: 'Customer first name' },
@@ -67,7 +74,7 @@ describe('SmartEditorComponent', () => {
     fixture.detectChanges();
 
     const textNode = fixture.nativeElement.querySelector('.text-node') as HTMLElement;
-    placeCaret(textNode, 6);
+    placeCaret(textNode, 0);
     textNode.dispatchEvent(new KeyboardEvent('keydown', { key: '{', bubbles: true }));
     fixture.detectChanges();
 
@@ -118,6 +125,28 @@ describe('SmartEditorComponent', () => {
     expect(fixture.nativeElement.querySelector('.variable-picker')).toBeNull();
   });
 
+  it('renders custom picker templates and projected content', async () => {
+    const fixture = TestBed.createComponent(TestHostComponent);
+    fixture.detectChanges();
+
+    const addVariableButton = fixture.nativeElement.querySelector('.tool') as HTMLButtonElement;
+    addVariableButton.click();
+    fixture.detectChanges();
+
+    const textNode = fixture.nativeElement.querySelector('.text-node') as HTMLElement;
+    expect(fixture.nativeElement.querySelector('.custom-picker-header')?.textContent).toContain('Custom picker header');
+    expect(fixture.nativeElement.querySelector('.custom-picker-footer')?.textContent).toContain('Footer action');
+    expect(fixture.nativeElement.querySelector('.custom-option')?.textContent).toContain('customer.firstName');
+
+    for (const key of ['z', 'z', 'z']) {
+      textNode.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    }
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('.custom-empty')?.textContent).toContain('zzz');
+  });
+
   it('removes the previous token when backspace is pressed at the start of a text node', async () => {
     const fixture = TestBed.createComponent(SmartEditorComponent);
     const component = fixture.componentInstance;
@@ -151,4 +180,36 @@ function placeCaret(element: HTMLElement, offset: number): void {
   const selection = window.getSelection();
   selection?.removeAllRanges();
   selection?.addRange(range);
+}
+
+@Component({
+  imports: [
+    SmartEditorComponent,
+    SmartEditorPickerOptionDirective,
+    SmartEditorPickerHeaderDirective,
+    SmartEditorPickerFooterDirective,
+    SmartEditorPickerEmptyDirective,
+  ],
+  template: `
+    <ngx-smart-editor [variableOptions]="variableOptions" [plugins]="[]">
+      <ng-template smartEditorPickerHeader>
+        <div class="custom-picker-header">Custom picker header</div>
+      </ng-template>
+
+      <ng-template smartEditorPickerOption let-option let-active="active">
+        <div class="custom-option" [attr.data-active]="active">{{ option.key }}</div>
+      </ng-template>
+
+      <ng-template smartEditorPickerEmpty let-query="query">
+        <p class="custom-empty">No match for {{ query }}</p>
+      </ng-template>
+
+      <ng-template smartEditorPickerFooter>
+        <div class="custom-picker-footer">Footer action</div>
+      </ng-template>
+    </ngx-smart-editor>
+  `,
+})
+class TestHostComponent {
+  readonly variableOptions = variableOptions;
 }
