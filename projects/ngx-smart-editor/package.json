@@ -1,6 +1,6 @@
 {
   "name": "ngx-smart-editor",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^21.2.0",
     "@angular/core": "^21.2.0"
@@ -8,5 +8,20 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "description": "Angular rich text editor library with inline variables, JSON document model, Markdown conversion, and extensible token plugins.",
+  "keywords": [
+    "angular",
+    "angular-library",
+    "rich-text-editor",
+    "text-editor",
+    "wysiwyg",
+    "markdown",
+    "json-editor",
+    "inline-editor",
+    "variable-picker",
+    "tokens",
+    "content-editor",
+    "form-control"
+  ]
 }

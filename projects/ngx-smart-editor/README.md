@@ -27,6 +27,40 @@ Install the package and Angular peer dependencies in your application:
 npm install ngx-smart-editor
 ```
 
+## Build
+
+Build the library package:
+
+```bash
+npm run build:lib
+```
+
+This command synchronizes the root `README.md` into `projects/ngx-smart-editor/README.md` before running `ng build ngx-smart-editor`, so the same README is published to npm inside `dist/ngx-smart-editor`.
+
+## Publish
+
+Check the library version before publishing:
+
+```bash
+npm run version:check:lib
+```
+
+Update `projects/ngx-smart-editor/package.json` before every publication.
+
+Then publish the package:
+
+```bash
+npm run publish:lib
+```
+
+Equivalent manual commands:
+
+```bash
+npm run build:lib
+cd dist/ngx-smart-editor
+npm publish
+```
+
 ## Quick Start
 
 Import the component and helpers from the package:
@@ -219,138 +253,3 @@ Current inline interaction includes:
 - press `Backspace` on an adjacent text boundary to remove an inline token
 - click an existing variable token to reopen the picker and replace it
 
-## Variable Picker
-
-The built-in picker supports:
-
-- desktop anchored dropdown positioning
-- mobile bottom-sheet behavior
-- live filtering from typed characters after `{`
-- insertion on `Enter`
-- replacement when clicking an existing variable token
-- template-based customization for header, option rows, loading, empty, error, and footer states
-
-Provide variable options like this:
-
-```ts
-const variableOptions: VariableOption[] = [
-  { key: 'customer.firstName', label: 'Customer first name' },
-  { key: 'ticket.id', label: 'Ticket ID' },
-];
-```
-
-## Plugins
-
-The editor is extensible through plugins.
-
-```ts
-import type { EditorPlugin } from 'ngx-smart-editor';
-
-const customPlugin: EditorPlugin = {
-  type: 'my-token',
-  isInline: true,
-  component: MyTokenComponent,
-  parseMarkdown: (input) => null,
-  serializeMarkdown: (node) => '',
-};
-```
-
-Register plugins through the component:
-
-```html
-<ngx-smart-editor [plugins]="plugins" />
-```
-
-The package already exports `defaultEditorPlugins`, which include:
-
-- text
-- variable
-- dropdown
-
-## Picker Customization
-
-The variable picker now supports Angular `ng-template` customization hooks.
-
-When using standalone components, import the corresponding picker template directives in the component that declares the editor template.
-
-Available template selectors:
-
-- `smartEditorPickerHeader`
-- `smartEditorPickerOption`
-- `smartEditorPickerLoading`
-- `smartEditorPickerEmpty`
-- `smartEditorPickerError`
-- `smartEditorPickerFooter`
-
-Example:
-
-```html
-<ngx-smart-editor [variableOptions]="variableOptions">
-  <ng-template smartEditorPickerHeader>
-    <div class="picker-header-custom">
-      <strong>Pick a variable</strong>
-    </div>
-  </ng-template>
-
-  <ng-template smartEditorPickerOption let-option let-active="active">
-    <div class="picker-option-custom" [attr.data-active]="active">
-      <strong>{{ option.label }}</strong>
-      <small>{{ option.key }}</small>
-    </div>
-  </ng-template>
-
-  <ng-template smartEditorPickerEmpty let-query="query">
-    <p>No results for "{{ query }}"</p>
-  </ng-template>
-
-  <ng-template smartEditorPickerFooter>
-    <button type="button">Manage variables</button>
-  </ng-template>
-</ngx-smart-editor>
-```
-
-Template context for `smartEditorPickerOption`:
-
-- `$implicit`: the current `VariableOption`
-- `active`: whether the option is the keyboard-active item
-- `query`: current search text
-
-Template context for loading, empty, error, header, and footer templates:
-
-- `query`: current search text
-
-## Public API
-
-Main exports:
-
-- `SmartEditorComponent`
-- `defaultEditorPlugins`
-- `parseMarkdown()`
-- `serializeMarkdown()`
-- `normalizeDocument()`
-- `validateDocument()`
-- editor model types such as `EditorDocument`, `EditorNode`, and `VariableOption`
-- plugin types such as `EditorPlugin`
-
-## Build the Library
-
-Build the Angular package with:
-
-```bash
-ng build ngx-smart-editor
-```
-
-The generated package is written to:
-
-```text
-dist/ngx-smart-editor
-```
-
-## Publish
-
-After building, publish from the generated package folder:
-
-```bash
-cd dist/ngx-smart-editor
-npm publish
-```
